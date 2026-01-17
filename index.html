@@ -3,72 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SL Bus Jam Pro - Realistic</title>
+    <title>SL Bus Jam - Real Logic</title>
     <style>
         :root { --ctb: #d63031; --tuk: #009432; --pickme: #f1c40f; }
-        body { background: #2f3640; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow: hidden; touch-action: none; }
+        body { background: #2f3640; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow: hidden; touch-action: none; }
         
         .header { padding: 10px; text-align: center; background: #1e272e; width: 100%; border-bottom: 3px solid #34495e; }
 
         /* මගීන් පෝලිම */
         .waiting-area { 
-            display: flex; gap: 8px; margin: 10px; padding: 12px; 
-            background: rgba(0,0,0,0.3); border-radius: 12px; width: 85%;
+            display: flex; gap: 8px; margin: 10px; padding: 10px; 
+            background: rgba(0,0,0,0.4); border-radius: 12px; width: 90%;
             overflow-x: auto; border: 2px solid #57606f; min-height: 45px;
         }
-        .passenger {
-            display: flex; flex-direction: column; align-items: center; flex-shrink: 0;
-            transition: all 0.4s ease;
-        }
-        .p-head { width: 12px; height: 12px; border-radius: 50%; margin-bottom: 2px; }
-        .p-body { width: 16px; height: 20px; border-radius: 4px 4px 1px 1px; }
+        .passenger { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; transition: all 0.4s; }
+        .p-head { width: 10px; height: 10px; border-radius: 50%; margin-bottom: 2px; }
+        .p-body { width: 14px; height: 18px; border-radius: 4px 4px 1px 1px; }
 
         /* ස්ලොට්ස් */
-        .parking-area { display: flex; gap: 6px; margin: 10px; }
+        .parking-area { display: flex; gap: 5px; margin: 10px; }
         .slot { 
-            width: 52px; height: 75px; background: #353b48; border-radius: 10px; 
+            width: 45px; height: 65px; background: #353b48; border-radius: 8px; 
             border: 2px solid #718093; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; position: relative;
         }
-        .slot.active { border-color: white; box-shadow: 0 0 10px white; }
-        .slot .cap { font-size: 10px; background: black; padding: 2px 4px; border-radius: 4px; margin-top: 4px; }
 
-        /* පාර සහ Grid */
-        .road-map { 
-            position: relative; width: 330px; height: 380px; 
-            background: #3d3d3d; border: 5px solid #222; border-radius: 15px;
-            display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(7, 1fr);
+        /* ප්‍රධාන පාර (Grid) */
+        .game-container {
+            position: relative; width: 320px; height: 400px; 
+            background: #3d3d3d; border: 8px solid #222; border-radius: 20px;
+            padding: 5px; box-sizing: content-box;
         }
 
-        /* තාත්වික වාහන පෙනුම */
+        /* වාහන සැකසුම - එක ළඟ Grid එකක් ලෙස */
         .vehicle { 
             position: absolute; cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; font-weight: bold; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4); color: white;
-            border: 2px solid rgba(255,255,255,0.2);
+            align-items: center; justify-content: center;
+            transition: all 0.4s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.3);
         }
-        /* ඊ හිස (Arrow head) */
-        .vehicle::after {
-            content: '▲'; position: absolute; font-size: 14px; color: rgba(255,255,255,0.8);
+
+        /* ඊ හිස (Direction Arrow) */
+        .vehicle::before {
+            content: '▲'; position: absolute; color: white; font-size: 14px; opacity: 0.8;
         }
-        .dir-up::after { top: 5px; transform: rotate(0deg); }
-        .dir-down::after { bottom: 5px; transform: rotate(180deg); }
-        .dir-left::after { left: 5px; transform: rotate(-90deg); }
-        .dir-right::after { right: 5px; transform: rotate(90deg); }
+        .up::before { top: 2px; transform: rotate(0deg); }
+        .down::before { bottom: 2px; transform: rotate(180deg); }
+        .left::before { left: 2px; transform: rotate(-90deg); }
+        .right::before { right: 2px; transform: rotate(90deg); }
 
-        .ctb { border-radius: 6px; z-index: 10; }
-        .tuk { border-radius: 12px; z-index: 5; }
-        .pickme { border-radius: 8px; color: black; z-index: 5; }
+        .v-ctb { border-radius: 6px; }
+        .v-tuk { border-radius: 12px; }
+        .v-pickme { border-radius: 8px; }
 
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; text-align: center; color: black; z-index: 1000; box-shadow: 0 0 100px black; }
-        button { background: #44bd32; color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-size: 18px; font-weight: bold; width: 100%; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 20px; text-align: center; color: black; z-index: 2000; box-shadow: 0 0 100px black; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h3 style="margin:0">SRI LANKA BUS JAM - LEVEL <span id="lvl">1</span></h3>
+        <h3 style="margin:0">LEVEL <span id="lvl">1</span></h3>
     </div>
 
     <div class="waiting-area" id="p-queue"></div>
@@ -79,94 +74,89 @@
         <div class="slot" id="s4"></div><div class="slot" id="s5"></div>
     </div>
 
-    <div class="road-map" id="map"></div>
+    <div class="game-container" id="game-map"></div>
 
     <div id="win-modal" class="modal">
-        <h1>Level Up! 🎉</h1>
-        <button onclick="nextLevel()">ඊළඟ මට්ටම</button>
+        <h1 style="color: #2ecc71;">මීළඟ මට්ටම! 🎉</h1>
+        <button onclick="nextLevel()" style="padding: 15px 30px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">START</button>
     </div>
 
     <script>
         let level = 1;
         let queue = [];
-        let parking = [null, null, null, null, null, null];
-        const vTypes = {
-            ctb: { id: 'ctb', color: '#d63031', seats: 8, size: [2, 1] },
-            tuk: { id: 'tuk', color: '#009432', seats: 3, size: [1, 1] },
-            pickme: { id: 'pickme', color: '#f1c40f', seats: 4, size: [1.5, 1] }
+        let slots = [null, null, null, null, null, null];
+        const cellSize = 52; // වාහන එක ළඟ තැබීමට සෛලයක ප්‍රමාණය
+
+        const vData = {
+            ctb: { id: 'ctb', color: '#d63031', seats: 8, len: 2 },
+            tuk: { id: 'tuk', color: '#009432', seats: 3, len: 1 },
+            pickme: { id: 'pickme', color: '#f1c40f', seats: 4, len: 1.5 }
         };
 
         function init() {
-            const pCount = 12 + (level * 3);
-            queue = Array.from({length: pCount}, () => Object.values(vTypes)[Math.floor(Math.random()*3)]);
-            parking = [null, null, null, null, null, null];
+            const pCount = 10 + (level * 4);
+            queue = Array.from({length: pCount}, () => Object.values(vData)[Math.floor(Math.random()*3)]);
+            slots = [null, null, null, null, null, null];
             document.getElementById('lvl').innerText = level;
-            document.getElementById('map').innerHTML = '';
+            document.getElementById('game-map').innerHTML = '';
             document.getElementById('win-modal').style.display = 'none';
             renderQueue();
             renderSlots();
-            spawnRealisticGrid(pCount);
+            createJam();
         }
 
-        function spawnRealisticGrid(count) {
-            const map = document.getElementById('map');
-            const vNeeded = Math.ceil(count / 3);
-            const directions = ['up', 'down', 'left', 'right'];
+        function createJam() {
+            const map = document.getElementById('game-map');
+            const dirs = ['up', 'down', 'left', 'right'];
+            
+            // Grid එක පුරා වාහන 12-15ක් පමණ පිළිවෙළකට අසුරමු
+            for(let r=0; r<6; r++) {
+                for(let c=0; c<5; c++) {
+                    if(Math.random() > 0.4) { // 60% ක ඉඩක් වාහන වලින් පුරවමු
+                        const type = Object.values(vData)[Math.floor(Math.random()*3)];
+                        const dir = dirs[Math.floor(Math.random()*4)];
+                        const v = document.createElement('div');
+                        
+                        v.className = `vehicle v-${type.id} ${dir}`;
+                        v.style.background = type.color;
+                        
+                        // දිශාව අනුව දිග පළල
+                        if(dir === 'up' || dir === 'down') {
+                            v.style.width = "48px"; v.style.height = (type.len * 48) + "px";
+                        } else {
+                            v.style.width = (type.len * 48) + "px"; v.style.height = "48px";
+                        }
 
-            for(let i=0; i < vNeeded; i++) {
-                const type = Object.values(vTypes)[Math.floor(Math.random()*3)];
-                const dir = directions[Math.floor(Math.random()*4)];
-                const v = document.createElement('div');
-                
-                // Grid එකේ පිළිවෙළට තැබීම
-                const r = Math.floor(Math.random() * 6);
-                const c = Math.floor(Math.random() * 5);
-                
-                v.className = `vehicle ${type.id} dir-${dir}`;
-                v.style.background = type.color;
-                
-                // දිශාව අනුව ප්‍රමාණය වෙනස් කිරීම
-                if(dir === 'up' || dir === 'down') {
-                    v.style.width = "45px"; v.style.height = (type.size[0] * 45) + "px";
-                } else {
-                    v.style.width = (type.size[0] * 45) + "px"; v.style.height = "45px";
+                        v.style.top = (r * 60 + 5) + "px";
+                        v.style.left = (c * 60 + 5) + "px";
+                        
+                        v.onclick = (e) => { e.stopPropagation(); moveVehicle(v, type, dir); };
+                        map.appendChild(v);
+                    }
                 }
-
-                v.style.top = (r * 55 + 5) + "px";
-                v.style.left = (c * 55 + 5) + "px";
-                v.dataset.dir = dir;
-
-                v.onclick = () => tryDrive(v, type, dir);
-                map.appendChild(v);
             }
         }
 
-        function tryDrive(v, type, dir) {
-            const rect = v.getBoundingClientRect();
-            let isBlocked = false;
+        function moveVehicle(v, type, dir) {
+            // ගමන් පථය අවහිර වී ඇත්දැයි බැලීම (සරල කළ අනුවාදය)
+            const emptySlot = slots.indexOf(null);
+            if(emptySlot === -1) return;
 
-            document.querySelectorAll('.vehicle').forEach(other => {
-                if (other === v) return;
-                const oRect = other.getBoundingClientRect();
-                const buffer = 5;
+            // වාහනය ඉදිරියට ගොස් නොපෙනී යාම (ස්ලොට් එකට යන බව පෙන්වීමට)
+            v.style.zIndex = "1000";
+            if(dir === 'up') v.style.top = "-200px";
+            else if(dir === 'down') v.style.top = "600px";
+            else if(dir === 'left') v.style.left = "-200px";
+            else if(dir === 'right') v.style.left = "600px";
+            
+            v.style.opacity = "0";
 
-                if (dir === 'up' && Math.abs(rect.left - oRect.left) < 30 && oRect.bottom < rect.top + buffer && oRect.bottom > rect.top - 100) isBlocked = true;
-                if (dir === 'down' && Math.abs(rect.left - oRect.left) < 30 && oRect.top > rect.bottom - buffer && oRect.top < rect.bottom + 100) isBlocked = true;
-                if (dir === 'left' && Math.abs(rect.top - oRect.top) < 30 && oRect.right < rect.left + buffer && oRect.right > rect.left - 100) isBlocked = true;
-                if (dir === 'right' && Math.abs(rect.top - oRect.top) < 30 && oRect.left > rect.right - buffer && oRect.left < rect.right + 100) isBlocked = true;
-            });
-
-            if (!isBlocked) {
-                const sIdx = parking.findIndex(s => s === null);
-                if (sIdx !== -1) {
-                    parking[sIdx] = { ...type, filled: 0 };
-                    v.style.transform = "scale(0) rotate(720deg)";
-                    v.style.opacity = "0";
-                    setTimeout(() => { v.remove(); renderSlots(); processBoarding(); }, 400);
-                }
-            } else {
-                v.style.transform = "shake 0.1s"; // සරල shake එකක්
-            }
+            setTimeout(() => {
+                slots[emptySlot] = { ...type, filled: 0 };
+                v.remove();
+                renderSlots();
+                processBoarding();
+            }, 400);
         }
 
         function renderQueue() {
@@ -182,13 +172,13 @@
         }
 
         function renderSlots() {
-            parking.forEach((s, i) => {
+            slots.forEach((s, i) => {
                 const el = document.getElementById(`s${i}`);
                 if (s) {
-                    el.style.background = s.color; el.classList.add('active');
-                    el.innerHTML = `<div style="font-size:20px">🚌</div><div class="cap">${s.filled}/${s.seats}</div>`;
+                    el.style.background = s.color;
+                    el.innerHTML = `<div style="font-size:18px">🚌</div><div style="font-size:10px; font-weight:bold">${s.filled}/${s.seats}</div>`;
                 } else {
-                    el.style.background = '#353b48'; el.classList.remove('active'); el.innerHTML = '';
+                    el.style.background = '#353b48'; el.innerHTML = '';
                 }
             });
         }
@@ -196,36 +186,28 @@
         function processBoarding() {
             if (queue.length === 0) return;
             const nextP = queue[0];
-            const sIdx = parking.findIndex(s => s && s.id === nextP.id && s.filled < s.seats);
+            const sIdx = slots.findIndex(s => s && s.id === nextP.id && s.filled < s.seats);
 
             if (sIdx !== -1) {
-                const pEl = document.getElementById('p-queue').children[0];
-                const sEl = document.getElementById(`s${sIdx}`);
-                const sRect = sEl.getBoundingClientRect();
-                const pRect = pEl.getBoundingClientRect();
+                queue.shift();
+                slots[sIdx].filled++;
+                renderQueue();
+                renderSlots();
 
-                pEl.style.position = 'fixed';
-                pEl.style.left = pRect.left + 'px'; pEl.style.top = pRect.top + 'px';
-                pEl.style.zIndex = "1000";
-                
-                setTimeout(() => {
-                    pEl.style.left = sRect.left + 15 + 'px';
-                    pEl.style.top = sRect.top + 20 + 'px';
-                    pEl.style.transform = 'scale(0.1)';
-                    pEl.style.opacity = '0';
-                }, 50);
-
-                setTimeout(() => {
-                    queue.shift(); parking[sIdx].filled++;
-                    renderQueue(); renderSlots();
-                    if (parking[sIdx].filled === parking[sIdx].seats) {
-                        setTimeout(() => { parking[sIdx] = null; renderSlots(); processBoarding(); checkWin(); }, 400);
-                    } else { setTimeout(processBoarding, 150); }
-                }, 500);
+                if (slots[sIdx].filled === slots[sIdx].seats) {
+                    setTimeout(() => {
+                        slots[sIdx] = null;
+                        renderSlots();
+                        processBoarding();
+                        if(queue.length === 0 && slots.every(s => s === null)) 
+                            document.getElementById('win-modal').style.display = 'block';
+                    }, 300);
+                } else {
+                    setTimeout(processBoarding, 100);
+                }
             }
         }
 
-        function checkWin() { if (queue.length === 0 && parking.every(s => s === null)) document.getElementById('win-modal').style.display = 'block'; }
         function nextLevel() { level++; init(); }
         init();
     </script>
